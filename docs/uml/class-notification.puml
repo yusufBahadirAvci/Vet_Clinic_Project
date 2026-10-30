@@ -1,0 +1,89 @@
+@startuml class-notification
+!pragma layout smetana
+title VetClinic – Notification Layer (Strategy + Factory)
+
+skinparam classAttributeIconSize 0
+
+package "com.vetclinic.notification" {
+  class NotificationService <<Service>> {
+    - factory : NotificationSenderFactory
+    - contactNormalizer : ContactNormalizer
+    + notifyUser(user : User, subject : String, body : String) : void
+    + notifyContact(normalizedContact : String, subject : String, body : String) : void
+  }
+
+  class NotificationSenderFactory <<Component>> {
+    - senders : Map<Channel, NotificationSender>
+    + NotificationSenderFactory(senders : List<NotificationSender>)
+    + get(channel : Channel) : NotificationSender
+  }
+
+  interface NotificationSender <<Strategy>> {
+    + channel() : Channel
+    + send(destination : String, subject : String, body : String) : void
+  }
+
+  class EmailSender <<Component>> {
+    - mailSender : JavaMailSender
+    + channel() : Channel
+    + send(destination : String, subject : String, body : String) : void
+  }
+
+  class MockSmsSender <<Component>> {
+    - smsOutboxRepository : SmsOutboxRepository
+    + channel() : Channel
+    + send(destination : String, subject : String, body : String) : void
+  }
+
+  class NetgsmSmsSender <<future>> #line.dashed {
+    - httpClient : RestClient
+    + channel() : Channel
+    + send(destination : String, subject : String, body : String) : void
+  }
+
+  enum Channel {
+    EMAIL
+    SMS
+  }
+}
+
+package "com.vetclinic.common" {
+  class ContactNormalizer {
+    + detectType(raw : String) : ContactType
+    + normalize(raw : String) : String
+  }
+}
+
+interface JavaMailSender <<Spring>>
+interface SmsOutboxRepository <<Repository>>
+
+NotificationService --> NotificationSenderFactory : uses
+NotificationService --> ContactNormalizer : uses
+NotificationSenderFactory o--> "1..*" NotificationSender : senders by channel
+NotificationSender ..> Channel
+
+EmailSender ..|> NotificationSender
+MockSmsSender ..|> NotificationSender
+NetgsmSmsSender .[dashed].|> NotificationSender
+
+EmailSender --> JavaMailSender
+MockSmsSender --> SmsOutboxRepository : writes sms_outbox
+
+note right of NotificationSenderFactory
+  **Factory:** Spring injects every NotificationSender bean;
+  the factory builds Map<Channel, NotificationSender>.
+  A new channel = one new class, no other change.
+end note
+
+note bottom of NetgsmSmsSender
+  Not implemented. A real SMS provider
+  would replace MockSmsSender for Channel.SMS.
+end note
+
+note left of NotificationService
+  notifyUser: e-mail if the user has one, otherwise SMS.
+  notifyContact: channel detected by ContactNormalizer.
+  The only entry point for sending notifications.
+end note
+
+@enduml

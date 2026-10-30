@@ -1,0 +1,90 @@
+@startuml class-adoption-state
+!pragma layout smetana
+title VetClinic – Adoption Listing (State pattern)
+
+skinparam classAttributeIconSize 0
+
+package "com.vetclinic.adoption.domain" {
+  class AdoptionListing <<Entity>> {
+    - status : ListingStatus
+    + state() : ListingState
+  }
+
+  enum ListingStatus {
+    DRAFT
+    ACTIVE
+    RESERVED
+    ADOPTED
+    CLOSED
+  }
+}
+
+package "com.vetclinic.adoption.domain.state" {
+  interface ListingState {
+    + publish() : ListingStatus
+    + reserve() : ListingStatus
+    + release() : ListingStatus
+    + complete() : ListingStatus
+    + close() : ListingStatus
+    + reopen() : ListingStatus
+    + acceptsApplications() : boolean
+  }
+
+  class DraftState {
+    + publish() : ListingStatus
+    + acceptsApplications() : boolean
+  }
+  class ActiveState {
+    + reserve() : ListingStatus
+    + complete() : ListingStatus
+    + close() : ListingStatus
+    + acceptsApplications() : boolean
+  }
+  class ReservedState {
+    + release() : ListingStatus
+    + complete() : ListingStatus
+    + close() : ListingStatus
+    + acceptsApplications() : boolean
+  }
+  class AdoptedState {
+    + acceptsApplications() : boolean
+  }
+  class ClosedState {
+    + reopen() : ListingStatus
+    + acceptsApplications() : boolean
+  }
+
+  class IllegalStateTransitionException <<Exception>>
+}
+
+AdoptionListing --> ListingStatus : status
+AdoptionListing ..> ListingState : state() selects by status
+ListingState ..> ListingStatus : returns next status
+
+DraftState ..|> ListingState
+ActiveState ..|> ListingState
+ReservedState ..|> ListingState
+AdoptedState ..|> ListingState
+ClosedState ..|> ListingState
+
+ListingState ..> IllegalStateTransitionException : throws
+
+note right of ListingState
+  Each state class overrides only its valid transitions;
+  every other method throws IllegalStateTransitionException.
+  DRAFT.publish() -> ACTIVE
+  ACTIVE.reserve() -> RESERVED
+  ACTIVE.complete() -> ADOPTED (RESERVED is optional)
+  ACTIVE.close() / RESERVED.close() -> CLOSED
+  RESERVED.release() -> ACTIVE
+  RESERVED.complete() -> ADOPTED
+  CLOSED.reopen() -> DRAFT
+  acceptsApplications() is true only in ActiveState.
+end note
+
+note bottom of AdoptionListing
+  Transitions go only through state():
+  status = state().publish();
+end note
+
+@enduml

@@ -1,0 +1,167 @@
+@startuml class-domain
+!pragma layout smetana
+title VetClinic – Domain Model (entities and enums)
+
+skinparam classAttributeIconSize 0
+hide empty methods
+
+package "com.vetclinic.user.domain" {
+  class User <<Entity>> {
+    - id : Long
+    - fullName : String
+    - email : String
+    - phone : String
+    - role : Role
+    - active : boolean
+    - kvkkConsentAt : OffsetDateTime
+    - createdAt : OffsetDateTime
+  }
+  enum Role {
+    VET
+    OWNER
+  }
+}
+
+package "com.vetclinic.pet.domain" {
+  class Pet <<Entity>> {
+    - id : Long
+    - owner : User
+    - name : String
+    - species : Species
+    - breed : String
+    - gender : Gender
+    - birthDate : LocalDate
+    - color : String
+    - microchipNo : String
+    - neutered : boolean
+    - photoUrl : String
+    - createdAt : OffsetDateTime
+  }
+  enum Species {
+    CAT
+    DOG
+    BIRD
+    RABBIT
+    OTHER
+  }
+  enum Gender {
+    MALE
+    FEMALE
+    UNKNOWN
+  }
+}
+
+package "com.vetclinic.vaccination.domain" {
+  class Vaccine <<Entity>> {
+    - id : Long
+    - name : String
+    - targetSpecies : Species
+    - repeatIntervalDays : Integer
+    - description : String
+  }
+  class Vaccination <<Entity>> {
+    - id : Long
+    - pet : Pet
+    - vaccine : Vaccine
+    - administeredAt : LocalDate
+    - nextDueDate : LocalDate
+    - vet : User
+    - lotNumber : String
+    - notes : String
+    - reminderSentAt : OffsetDateTime
+    - createdAt : OffsetDateTime
+  }
+}
+
+package "com.vetclinic.adoption.domain" {
+  class AdoptionListing <<Entity>> {
+    - id : Long
+    - pet : Pet
+    - title : String
+    - description : String
+    - status : ListingStatus
+    - createdBy : User
+    - createdAt : OffsetDateTime
+    - updatedAt : OffsetDateTime
+    + state() : ListingState
+  }
+  class AdoptionApplication <<Entity>> {
+    - id : Long
+    - listing : AdoptionListing
+    - applicantName : String
+    - applicantEmail : String
+    - applicantPhone : String
+    - message : String
+    - kvkkConsent : boolean
+    - status : ApplicationStatus
+    - createdAt : OffsetDateTime
+    - decidedAt : OffsetDateTime
+  }
+  enum ListingStatus {
+    DRAFT
+    ACTIVE
+    RESERVED
+    ADOPTED
+    CLOSED
+  }
+  enum ApplicationStatus {
+    PENDING
+    APPROVED
+    REJECTED
+  }
+}
+
+package "com.vetclinic.auth.domain" {
+  class OtpCode <<Entity>> {
+    - id : Long
+    - user : User
+    - channel : Channel
+    - destination : String
+    - codeHash : String
+    - expiresAt : OffsetDateTime
+    - attemptCount : int
+    - usedAt : OffsetDateTime
+    - createdAt : OffsetDateTime
+  }
+}
+
+package "com.vetclinic.notification.domain" {
+  class SmsOutboxMessage <<Entity>> {
+    - id : Long
+    - phone : String
+    - message : String
+    - createdAt : OffsetDateTime
+  }
+  enum Channel {
+    EMAIL
+    SMS
+  }
+}
+
+' ---- Associations (all @ManyToOne / @OneToOne are LAZY) ----
+Pet "0..*" --> "0..1" User : owner
+Vaccination "0..*" --> "1" Pet : pet
+Vaccination "0..*" --> "1" Vaccine : vaccine
+Vaccination "0..*" --> "1" User : vet
+AdoptionListing "0..1" --> "1" Pet : pet
+AdoptionListing "0..*" --> "1" User : createdBy
+AdoptionApplication "0..*" --> "1" AdoptionListing : listing
+OtpCode "0..*" --> "1" User : user
+
+' ---- Enum usage ----
+User ..> Role
+Pet ..> Species
+Pet ..> Gender
+Vaccine ..> Species
+AdoptionListing ..> ListingStatus
+AdoptionApplication ..> ApplicationStatus
+OtpCode ..> Channel
+
+note bottom of SmsOutboxMessage
+  Enums are stored as VARCHAR
+  (@Enumerated(EnumType.STRING)).
+  createdAt is filled by DEFAULT now()
+  (insertable = false, updatable = false + @Generated).
+end note
+
+@enduml

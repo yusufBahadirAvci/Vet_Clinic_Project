@@ -1,0 +1,37 @@
+@startuml adoption-state
+!pragma layout smetana
+title VetClinic – Adoption Listing States
+
+hide empty description
+
+[*] --> DRAFT : vet creates listing
+
+DRAFT --> ACTIVE : publish()
+ACTIVE --> RESERVED : reserve()\n(interview, optional)
+RESERVED --> ACTIVE : release()\n(interview negative)
+ACTIVE --> ADOPTED : complete()\n(application approved)
+RESERVED --> ADOPTED : complete()\n(application approved)
+ACTIVE --> CLOSED : close()
+RESERVED --> CLOSED : close()
+CLOSED --> DRAFT : reopen()
+
+ADOPTED --> [*]
+
+ACTIVE : acceptsApplications() = true
+DRAFT : not public
+RESERVED : public, "interview in progress" badge
+ADOPTED : public, "found a home" page
+CLOSED : not public
+
+note as invalid
+  **Invalid transitions** (throw IllegalStateTransitionException):
+  - ADOPTED -> any state (final)
+  - DRAFT -> RESERVED, ADOPTED, CLOSED
+  - ACTIVE -> DRAFT (no reopen; close first)
+  - RESERVED -> DRAFT, RESERVED (no second reserve)
+  - CLOSED -> ACTIVE, RESERVED, ADOPTED (must reopen to DRAFT first)
+  - publish() on anything but DRAFT; reopen() on anything but CLOSED
+  Only ACTIVE accepts new applications.
+end note
+
+@enduml
