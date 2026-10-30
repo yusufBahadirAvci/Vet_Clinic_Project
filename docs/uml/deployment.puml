@@ -1,0 +1,33 @@
+@startuml deployment
+!pragma layout smetana
+title VetClinic – Deployment (Docker Compose)
+
+node "User device" as device {
+  artifact "Web browser" as browser
+}
+
+node "Docker host (docker compose)" as host {
+  node "app container" as app {
+    component "VetClinic\nSpring Boot (Java 21)\nprofile: docker\n:8080" as boot
+  }
+  node "db container\n(postgres:16)" as dbnode {
+    database "PostgreSQL 16\nvetclinic\n:5432" as db
+  }
+  node "mailpit container\n(axllent/mailpit)" as mailnode {
+    component "Mailpit\nSMTP :1025\nWeb UI :8025" as mailpit
+  }
+  storage "volume: pgdata" as pgdata
+}
+
+browser --> boot : HTTP :8080\n(session cookie, CSRF)
+browser --> mailpit : HTTP :8025\n(view OTP e-mails)
+boot --> db : JDBC :5432\n(Flyway, JPA)
+boot --> mailpit : SMTP :1025\n(Spring Mail)
+db --> pgdata : persists data
+
+note bottom of app
+  depends_on db (healthcheck).
+  Hosts inside the network: db, mailpit.
+end note
+
+@enduml

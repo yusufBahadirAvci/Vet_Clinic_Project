@@ -1,0 +1,167 @@
+@startuml er
+!pragma layout smetana
+title VetClinic – Entity-Relationship Diagram (V1__init.sql)
+
+hide circle
+skinparam linetype ortho
+skinparam class {
+  BackgroundColor #FDFDFD
+  BorderColor #555555
+}
+
+' Legend: PK = primary key, FK = foreign key, UQ = unique, NN = NOT NULL
+
+entity "users" as users {
+  * id : BIGSERIAL <<PK>>
+  --
+  * full_name : VARCHAR(100) <<NN>>
+  email : VARCHAR(254) <<UQ>> NULL
+  phone : VARCHAR(13) <<UQ>> NULL
+  * role : VARCHAR(10) <<NN>>
+  * active : BOOLEAN <<NN>> DEFAULT TRUE
+  kvkk_consent_at : TIMESTAMPTZ NULL
+  * created_at : TIMESTAMPTZ <<NN>> DEFAULT now()
+}
+
+entity "pets" as pets {
+  * id : BIGSERIAL <<PK>>
+  --
+  owner_id : BIGINT <<FK users>> NULL
+  * name : VARCHAR(50) <<NN>>
+  * species : VARCHAR(10) <<NN>>
+  breed : VARCHAR(60) NULL
+  * gender : VARCHAR(10) <<NN>>
+  * birth_date : DATE <<NN>>
+  color : VARCHAR(40) NULL
+  microchip_no : VARCHAR(20) <<UQ>> NULL
+  * is_neutered : BOOLEAN <<NN>> DEFAULT FALSE
+  photo_url : VARCHAR(500) NULL
+  * created_at : TIMESTAMPTZ <<NN>> DEFAULT now()
+}
+
+entity "vaccines" as vaccines {
+  * id : BIGSERIAL <<PK>>
+  --
+  * name : VARCHAR(80) <<NN>> <<UQ>>
+  target_species : VARCHAR(10) NULL
+  repeat_interval_days : INT NULL
+  description : VARCHAR(500) NULL
+}
+
+entity "vaccinations" as vaccinations {
+  * id : BIGSERIAL <<PK>>
+  --
+  * pet_id : BIGINT <<FK pets>> <<NN>>
+  * vaccine_id : BIGINT <<FK vaccines>> <<NN>>
+  * administered_at : DATE <<NN>>
+  next_due_date : DATE NULL
+  * vet_id : BIGINT <<FK users>> <<NN>>
+  lot_number : VARCHAR(40) NULL
+  notes : VARCHAR(500) NULL
+  reminder_sent_at : TIMESTAMPTZ NULL
+  * created_at : TIMESTAMPTZ <<NN>> DEFAULT now()
+}
+
+entity "adoption_listings" as listings {
+  * id : BIGSERIAL <<PK>>
+  --
+  * pet_id : BIGINT <<FK pets>> <<UQ>> <<NN>>
+  * title : VARCHAR(100) <<NN>>
+  * description : TEXT <<NN>>
+  * status : VARCHAR(10) <<NN>>
+  * created_by : BIGINT <<FK users>> <<NN>>
+  * created_at : TIMESTAMPTZ <<NN>> DEFAULT now()
+  * updated_at : TIMESTAMPTZ <<NN>> DEFAULT now()
+}
+
+entity "adoption_applications" as applications {
+  * id : BIGSERIAL <<PK>>
+  --
+  * listing_id : BIGINT <<FK adoption_listings>> <<NN>>
+  * applicant_name : VARCHAR(100) <<NN>>
+  applicant_email : VARCHAR(254) NULL
+  applicant_phone : VARCHAR(13) NULL
+  message : TEXT NULL
+  * kvkk_consent : BOOLEAN <<NN>>
+  * status : VARCHAR(10) <<NN>>
+  * created_at : TIMESTAMPTZ <<NN>> DEFAULT now()
+  decided_at : TIMESTAMPTZ NULL
+}
+
+entity "otp_codes" as otp {
+  * id : BIGSERIAL <<PK>>
+  --
+  * user_id : BIGINT <<FK users>> <<NN>>
+  * channel : VARCHAR(5) <<NN>>
+  * destination : VARCHAR(254) <<NN>>
+  * code_hash : VARCHAR(100) <<NN>>
+  * expires_at : TIMESTAMPTZ <<NN>>
+  * attempt_count : INT <<NN>> DEFAULT 0
+  used_at : TIMESTAMPTZ NULL
+  * created_at : TIMESTAMPTZ <<NN>> DEFAULT now()
+}
+
+entity "sms_outbox" as sms {
+  * id : BIGSERIAL <<PK>>
+  --
+  * phone : VARCHAR(13) <<NN>>
+  * message : VARCHAR(500) <<NN>>
+  * created_at : TIMESTAMPTZ <<NN>> DEFAULT now()
+}
+
+' ---- Relationships ----
+users |o--o{ pets : "owns (owner_id NULL = no owner)"
+pets ||--o{ vaccinations : "pet_id"
+vaccines ||--o{ vaccinations : "vaccine_id"
+users ||--o{ vaccinations : "vet_id (administered by)"
+pets ||--o| listings : "pet_id (UNIQUE)"
+users ||--o{ listings : "created_by"
+listings ||--o{ applications : "listing_id"
+users ||--o{ otp : "user_id"
+
+' ---- CHECK constraints ----
+note right of users
+  **CHECK** (role IN ('VET','OWNER'))
+  **CHECK** (email IS NOT NULL OR phone IS NOT NULL)
+  email: lower case; phone: +905321234567
+  (normalized by ContactNormalizer)
+end note
+
+note right of applications
+  **CHECK** (applicant_email IS NOT NULL
+         OR applicant_phone IS NOT NULL)
+  **CHECK** (status IN ('PENDING','APPROVED','REJECTED'))
+end note
+
+' ---- Enum columns: stored as VARCHAR (@Enumerated(STRING)) and guarded by CHECK ----
+note bottom of pets
+  **CHECK** (species IN ('CAT','DOG','BIRD','RABBIT','OTHER'))
+  **CHECK** (gender IN ('MALE','FEMALE','UNKNOWN'))
+end note
+
+note bottom of vaccines
+  **CHECK** (target_species IS NULL OR target_species IN ('CAT','DOG','BIRD','RABBIT','OTHER'))
+  target_species NULL = all species
+  repeat_interval_days NULL = single dose
+end note
+
+note bottom of vaccinations
+  **INDEX** (next_due_date)
+end note
+
+note right of listings
+  **CHECK** (status IN ('DRAFT','ACTIVE','RESERVED','ADOPTED','CLOSED'))
+  updated_at: DEFAULT now() on insert;
+  set by the service via Clock on every update
+end note
+
+note bottom of otp
+  **CHECK** (channel IN ('EMAIL','SMS'))
+  **INDEX** (destination, created_at)
+end note
+
+note bottom of sms
+  No foreign keys (mock SMS outbox)
+end note
+
+@enduml
