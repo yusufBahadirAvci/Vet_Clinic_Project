@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: vetclinic
+  profiles:
+    default: dev
+  datasource:
+    url: jdbc:postgresql://localhost:5432/vetclinic
+    username: vetclinic
+    password: vetclinic
+  mail:
+    host: localhost
+    port: 1025
+  # TEMPORARY – restore in task Y2 (flyway enabled, ddl-auto validate)
+  flyway:
+    enabled: false
+  jpa:
+    # TEMPORARY – restore in task Y2 (flyway enabled, ddl-auto validate)
+    hibernate:
+      ddl-auto: none
+    open-in-view: false
