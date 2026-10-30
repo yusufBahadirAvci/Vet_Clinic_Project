@@ -1,0 +1,127 @@
+' VetClinic – Use Case Diagrams (C1, Ceylin)
+' Use case numbers match docs/requirements.md.
+' The diagram is split into two pages for readability:
+'   Page 1: Visitor and Pet Owner
+'   Page 2: Veterinarian and Scheduler
+
+@startuml use-case-1-visitor-owner
+title VetClinic – Use Cases (1/2): Visitor and Pet Owner
+
+left to right direction
+skinparam packageStyle rectangle
+skinparam actorStyle awesome
+skinparam usecase {
+  BackgroundColor #F7FBFF
+  BorderColor #4A6FA5
+}
+
+actor "Visitor" as Visitor
+actor "Pet Owner" as Owner
+Owner --|> Visitor
+
+rectangle "VetClinic" {
+  package "Adoption (public)" {
+    usecase "UC-01 Browse and filter\nadoption listings" as UC01
+    usecase "UC-02 View listing details" as UC02
+    usecase "UC-03 Apply for adoption" as UC03
+  }
+
+  package "Authentication" {
+    usecase "UC-04 Log in with code" as UC04
+    usecase "UC-05 Verify code" as UC05
+    usecase "UC-06 Resend code" as UC06
+    usecase "UC-07 Log out" as UC07
+  }
+
+  package "Pet owner portal" {
+    usecase "UC-08 View my pets" as UC08
+    usecase "UC-09 View / print\nvaccination card" as UC09
+    usecase "UC-10 View my profile" as UC10
+  }
+}
+
+Visitor --> UC01
+Visitor --> UC02
+Visitor --> UC03
+
+Owner --> UC04
+Owner --> UC07
+Owner --> UC08
+Owner --> UC09
+Owner --> UC10
+
+UC04 ..> UC05 : <<include>>
+UC06 ..> UC05 : <<extend>>
+
+note right of UC04
+  E-mail or phone number.
+  Same message whether the
+  user is registered or not.
+end note
+@enduml
+
+@startuml use-case-2-veterinarian
+title VetClinic – Use Cases (2/2): Veterinarian and Scheduler
+
+left to right direction
+skinparam packageStyle rectangle
+skinparam actorStyle awesome
+skinparam usecase {
+  BackgroundColor #F7FBFF
+  BorderColor #4A6FA5
+}
+
+actor "Veterinarian" as Vet
+actor "Scheduler\n(System)" as Scheduler <<system>>
+
+rectangle "VetClinic" {
+  package "Authentication" {
+    usecase "UC-04 Log in with code\n(see page 1)" as UC04
+    usecase "UC-07 Log out" as UC07
+  }
+
+  package "Owners and pets" {
+    usecase "UC-11 View dashboard" as UC11
+    usecase "UC-12 Manage pet owners" as UC12
+    usecase "UC-13 Manage pets" as UC13
+  }
+
+  package "Vaccinations" {
+    usecase "UC-14 Manage vaccine catalog" as UC14
+    usecase "UC-15 Add / edit\nvaccination record" as UC15
+    usecase "UC-16 View upcoming\nvaccinations" as UC16
+    usecase "UC-23 Run reminders manually" as UC23
+    usecase "UC-22 Send vaccination\nreminder" as UC22
+  }
+
+  package "Adoption management" {
+    usecase "UC-17 Manage adoption listings" as UC17
+    usecase "UC-18 Review applications" as UC18
+    usecase "UC-19 Transfer ownership" as UC19
+    usecase "UC-20 Notify adoption result" as UC20
+  }
+
+  package "Demo tools" {
+    usecase "UC-21 View SMS outbox" as UC21
+  }
+}
+
+Vet --> UC04
+Vet --> UC07
+Vet --> UC11
+Vet --> UC12
+Vet --> UC13
+Vet --> UC14
+Vet --> UC15
+Vet --> UC16
+Vet --> UC23
+Vet --> UC17
+Vet --> UC18
+Vet --> UC21
+
+Scheduler --> UC22
+
+UC23 ..> UC22 : <<include>>
+UC18 <.. UC19 : <<extend>>\n(on approval)
+UC18 ..> UC20 : <<include>>
+@enduml

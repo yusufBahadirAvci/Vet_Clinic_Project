@@ -1,0 +1,78 @@
+@startuml adoption-activity
+' VetClinic – Adoption process activity diagram (C1, Ceylin)
+' Listing states: DRAFT, ACTIVE, RESERVED, ADOPTED, CLOSED (see adoption-state.puml)
+
+skinparam ActivityBackgroundColor #F7FBFF
+skinparam ActivityBorderColor #4A6FA5
+
+|Visitor|
+start
+:Browse adoption listings;
+:Filter by species / gender / age range;
+:View listing details;
+if (Does the listing accept applications?\n(status = ACTIVE)) then (no)
+  :See status info\n("In the meeting process" / "Found a home");
+  stop
+endif
+:Fill in the application form\n(full name, e-mail and/or phone,\nmessage, privacy consent);
+
+|System|
+:Normalize and validate\ncontact info (ContactNormalizer);
+if (Is there already a pending application\nfor this listing with the same contact?) then (yes)
+  :Show "You have already applied\nfor this listing";
+  stop
+endif
+:Save application as PENDING;
+
+|Visitor|
+:See "Application received" page;
+
+|Veterinarian|
+:Review pending applications;
+if (Meet the applicant?) then (yes)
+  :Reserve listing for meeting\n(ACTIVE → RESERVED);
+  :Meet the applicant;
+endif
+
+if (Decision?) then (reject)
+  |System|
+  :Application → REJECTED;
+  :Publish ApplicationRejectedEvent;
+  :Send polite rejection\nnotification to applicant;
+  |Veterinarian|
+  if (Is the listing RESERVED?) then (yes)
+    :Put listing back online\n(RESERVED → ACTIVE);
+  endif
+else (approve)
+  |System|
+  :Look up user by the application's\ne-mail / phone;
+  if (User found?) then (no)
+    :Create new OWNER\n(consent time = now);
+  else (yes)
+    if (Is the user a VET?) then (yes)
+      :Error: "This contact info\nbelongs to a staff account";
+      stop
+    endif
+  endif
+  :Set the new owner on the pet\n(vaccination history is kept);
+  :Listing → ADOPTED;
+  :Application → APPROVED;
+  :Other PENDING applications\nfor this listing → REJECTED;
+  note right
+    All steps up to here run in a single
+    transaction; notifications are sent
+    after commit (AFTER_COMMIT).
+  end note
+  fork
+    :Publish PetAdoptedEvent;
+    :Send welcome notification\nto the new owner;
+  fork again
+    :Publish ApplicationRejectedEvent\nfor each rejection;
+    :Send notifications\nto rejected applicants;
+  end fork
+  |Veterinarian|
+  :See the new owner's detail page\n("Pamuk was transferred to Ayşe Yılmaz");
+endif
+stop
+
+@enduml

@@ -1,0 +1,120 @@
+@startuml otp-login-sequence
+' VetClinic – OTP login sequence diagram (C1, Ceylin)
+' Class names match CLAUDE.md and TASKS.md (C2, C3, C5).
+
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+autonumber "<b>[0]"
+
+actor "User" as U
+boundary "LoginController" as LC
+control "OtpService" as OS
+control "OtpRateLimiter" as RL
+control "ContactNormalizer" as CN
+entity "UserRepository" as UR
+entity "OtpCodeRepository" as OR
+control "OtpCodeGenerator" as GEN
+control "PasswordEncoder\n(BCrypt)" as PE
+control "NotificationSenderFactory" as NF
+participant "NotificationSender\n(EmailSender | MockSmsSender)" as NS
+control "SessionLoginService" as SL
+
+== 1. Request code ==
+
+U -> LC : POST /login (e-mail or phone)
+activate LC
+LC -> OS : requestCode(rawContact)
+activate OS
+OS -> CN : normalize(rawContact)
+alt invalid format
+  CN --> OS : InvalidContactException
+  OS --> LC : InvalidContactException
+  LC --> U : form error\n"Enter a valid e-mail or mobile number"
+else valid
+  CN --> OS : normalizedContact + ContactType
+  OS -> RL : check(normalizedContact)
+  note right of RL : Added in C5\n(60 s cooldown, max 5 codes per hour)
+  alt less than 60 s since last code / more than 5 codes in the last hour
+    RL --> OS : limit exceeded
+    OS --> LC : RateLimited(remainingSeconds)
+    LC --> U : "Please wait 42 seconds before requesting a new code"
+  else within limits
+    RL --> OS : allowed
+    OS -> UR : findByEmail / findByPhone
+    alt user not found or inactive
+      UR --> OS : Optional.empty()
+      note over OS : Returns silently,\nnothing is sent
+    else active user found
+      UR --> OS : user
+      OS -> OR : invalidate the user's\nunused previous codes
+      OS -> GEN : generate()
+      GEN --> OS : "483920" (SecureRandom)
+      OS -> PE : encode(code)
+      PE --> OS : codeHash
+      OS -> OR : save(userId, channel, destination,\ncodeHash, expiresAt = now + 5 min)
+      OS -> NF : get(channel)
+      note right of NF : EMAIL → EmailSender\nSMS → MockSmsSender\n(Strategy + Factory)
+      NF --> OS : sender
+      OS -> NS : send(destination, subject, message)
+      activate NS
+      NS --> OS
+      deactivate NS
+    end
+    OS --> LC
+    LC --> U : 302 → /login/verify\n"If your details are registered, a verification code has been sent"
+  end
+end
+deactivate OS
+deactivate LC
+
+== 2. Verify code ==
+
+U -> LC : POST /login/verify (6-digit code)
+activate LC
+note right of LC : Contact info is\nread from the session
+LC -> OS : verifyCode(contact, code)
+activate OS
+OS -> OR : get latest unused code
+OR --> OS : otpCode (or empty)
+
+alt no code or expired (expiresAt < now)
+  OS --> LC : VerifyResult.INVALID
+else code exists
+  OS -> PE : matches(code, codeHash)
+  PE --> OS : result
+  alt wrong code
+    OS -> OR : attemptCount++
+    alt attemptCount = 5
+      OS -> OR : invalidate code
+      OS --> LC : VerifyResult.LOCKED
+    else attemptCount < 5
+      OS --> LC : VerifyResult.INVALID
+    end
+    note over OS : No exception is thrown;\notherwise attemptCount++\nwould be rolled back (CLAUDE.md rule 12)
+  else correct code
+    OS -> OR : usedAt = now
+    OS --> LC : VerifyResult.SUCCESS(user)
+  end
+end
+deactivate OS
+
+alt SUCCESS
+  LC -> SL : loginAs(user, request, response)
+  activate SL
+  SL -> SL : request.changeSessionId()\n(session fixation protection)
+  SL -> SL : create SecurityContext and save it\nto the session via\nHttpSessionSecurityContextRepository
+  SL --> LC
+  deactivate SL
+  alt role = VET
+    LC --> U : 302 → /vet
+  else role = OWNER
+    LC --> U : 302 → /my/pets
+  end
+else INVALID
+  LC --> U : "The code is invalid or has expired"
+else LOCKED
+  LC --> U : "Too many failed attempts, please request a new code"
+end
+deactivate LC
+
+@enduml
