@@ -51,5 +51,5 @@
 ## 9. CHECK constraints on enum columns
 
 - **Date:** 2026-10-30
-- **Decision:** all enum columns have CHECK constraints in `V1__init.sql`: `users.role`, `pets.species`, `pets.gender`, `adoption_listings.status`, `adoption_applications.status` and `otp_codes.channel`. Each constraint lists exactly the values in decision 3.
+- **Decision:** all enum columns have CHECK constraints in `V1__init.sql`: `users.role`, `pets.species`, `pets.gender`, `vaccines.target_species` (`IS NULL OR IN (...)`, NULL = all species), `adoption_listings.status`, `adoption_applications.status` and `otp_codes.channel`. Each constraint lists exactly the values in decision 3.
 - **Rationale:** the database rejects invalid values even outside the application (manual SQL, seed scripts, future migrations), so a typo cannot store a value that `@Enumerated(EnumType.STRING)` fails to read back.

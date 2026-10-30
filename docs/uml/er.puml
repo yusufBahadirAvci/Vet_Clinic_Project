@@ -140,8 +140,8 @@ note bottom of pets
 end note
 
 note bottom of vaccines
-  target_species: CAT, DOG, BIRD, RABBIT, OTHER
-  (NULL = all species)
+  **CHECK** (target_species IS NULL OR target_species IN ('CAT','DOG','BIRD','RABBIT','OTHER'))
+  target_species NULL = all species
   repeat_interval_days NULL = single dose
 end note
 
