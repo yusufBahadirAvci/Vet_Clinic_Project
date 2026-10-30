@@ -47,3 +47,9 @@
 - **Date:** 2026-10-30
 - **Decision:** `updated_at TIMESTAMPTZ NOT NULL DEFAULT now()`; the default fills it on insert, and the service sets it via the injected `Clock` on every update.
 - **Rationale:** the Y2 table did not specify a type; this follows the time rule in `CLAUDE.md` (no direct `now()` calls in Java, business timestamps set by services using the Clock).
+
+## 9. CHECK constraints on enum columns
+
+- **Date:** 2026-10-30
+- **Decision:** all enum columns have CHECK constraints in `V1__init.sql`: `users.role`, `pets.species`, `pets.gender`, `adoption_listings.status`, `adoption_applications.status` and `otp_codes.channel`. Each constraint lists exactly the values in decision 3.
+- **Rationale:** the database rejects invalid values even outside the application (manual SQL, seed scripts, future migrations), so a typo cannot store a value that `@Enumerated(EnumType.STRING)` fails to read back.

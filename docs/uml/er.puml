@@ -130,15 +130,13 @@ end note
 note right of applications
   **CHECK** (applicant_email IS NOT NULL
          OR applicant_phone IS NOT NULL)
-  Allowed status values:
-  PENDING, APPROVED, REJECTED
+  **CHECK** (status IN ('PENDING','APPROVED','REJECTED'))
 end note
 
-' ---- Allowed values (stored as VARCHAR, @Enumerated(STRING)) ----
+' ---- Enum columns: stored as VARCHAR (@Enumerated(STRING)) and guarded by CHECK ----
 note bottom of pets
-  Allowed values:
-  species: CAT, DOG, BIRD, RABBIT, OTHER
-  gender: MALE, FEMALE, UNKNOWN
+  **CHECK** (species IN ('CAT','DOG','BIRD','RABBIT','OTHER'))
+  **CHECK** (gender IN ('MALE','FEMALE','UNKNOWN'))
 end note
 
 note bottom of vaccines
@@ -152,15 +150,14 @@ note bottom of vaccinations
 end note
 
 note right of listings
-  Allowed status values:
-  DRAFT, ACTIVE, RESERVED, ADOPTED, CLOSED
+  **CHECK** (status IN ('DRAFT','ACTIVE','RESERVED','ADOPTED','CLOSED'))
   updated_at: DEFAULT now() on insert;
   set by the service via Clock on every update
 end note
 
 note bottom of otp
+  **CHECK** (channel IN ('EMAIL','SMS'))
   **INDEX** (destination, created_at)
-  channel: EMAIL, SMS
 end note
 
 note bottom of sms
