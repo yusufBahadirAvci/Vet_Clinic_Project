@@ -1,0 +1,9 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://db:5432/vetclinic
+  mail:
+    host: mailpit
+    port: 1025
+  flyway:
+    # Schema + demo data. Without db/seed the app in Docker starts empty and the demo does not work.
+    locations: classpath:db/migration,classpath:db/seed
