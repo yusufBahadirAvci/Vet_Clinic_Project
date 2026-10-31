@@ -3,6 +3,7 @@ package com.vetclinic.pet.service;
 import com.vetclinic.common.AgeFormatter;
 import com.vetclinic.common.PhotoUrls;
 import com.vetclinic.common.exception.NotFoundException;
+import com.vetclinic.common.web.EnumLabels;
 import com.vetclinic.pet.domain.Pet;
 import com.vetclinic.pet.repository.PetRepository;
 import com.vetclinic.vaccination.VaccinationStatus;
@@ -16,7 +17,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 
 /**
@@ -62,15 +62,15 @@ public class PetProfileFacade {
                 .sorted(Comparator.comparing(PetProfileDto.VaccinationEntry::nextDueDate))
                 .toList();
         return new PetProfileDto(
-                pet.getId(), pet.getName(), pet.getSpecies(), label(pet.getSpecies()), pet.getBreed(),
-                label(pet.getGender()), pet.getBirthDate(), ageFormatter.format(pet.getBirthDate()),
-                pet.getColor(), pet.getMicrochipNo(), pet.isNeutered(), PhotoUrls.safeOrNull(pet.getPhotoUrl()),
+                pet.getId(), pet.getName(), pet.getSpecies(), EnumLabels.of(pet.getSpecies()), pet.getBreed(),
+                EnumLabels.of(pet.getGender()), pet.getBirthDate(), ageFormatter.format(pet.getBirthDate()),
+                pet.getColor(), pet.getMicrochipNo(), pet.isNeutered(), photoOf(pet),
                 nearestStatus(timeline), upcoming, timeline);
     }
 
     private PetSummaryDto toSummary(Pet pet) {
-        return new PetSummaryDto(pet.getId(), pet.getName(), pet.getSpecies(), label(pet.getSpecies()),
-                pet.getBreed(), ageFormatter.format(pet.getBirthDate()), PhotoUrls.safeOrNull(pet.getPhotoUrl()),
+        return new PetSummaryDto(pet.getId(), pet.getName(), pet.getSpecies(), EnumLabels.of(pet.getSpecies()),
+                pet.getBreed(), ageFormatter.format(pet.getBirthDate()), photoOf(pet),
                 nearestStatus(timelineOf(pet)));
     }
 
@@ -106,8 +106,7 @@ public class PetProfileFacade {
                 && (entry.status() == VaccinationStatus.OVERDUE || entry.status() == VaccinationStatus.DUE_SOON);
     }
 
-    private static String label(Enum<?> value) {
-        String name = value.name();
-        return name.charAt(0) + name.substring(1).toLowerCase(Locale.ROOT);
+    private static String photoOf(Pet pet) {
+        return PhotoUrls.isAllowed(pet.getPhotoUrl()) ? pet.getPhotoUrl() : null;
     }
 }

@@ -17,9 +17,9 @@
         <div class="col-12 col-sm-6 col-lg-4" th:each="p : ${pets}">
             <a th:href="@{/my/pets/{id}(id=${p.id})}" class="text-decoration-none text-reset">
                 <div class="card h-100 shadow-sm">
-                    <img th:if="${p.photoUrl}" th:src="${p.photoUrl}" th:alt="${p.name}"
+                    <img th:if="${p.photoUrl != null and T(com.vetclinic.common.PhotoUrls).isAllowed(p.photoUrl)}" th:src="${p.photoUrl}" th:alt="${p.name}"
                          class="card-img-top pet-photo">
-                    <div th:unless="${p.photoUrl}" class="pet-photo pet-icon d-flex align-items-center justify-content-center"
+                    <div th:unless="${p.photoUrl != null and T(com.vetclinic.common.PhotoUrls).isAllowed(p.photoUrl)}" class="pet-photo pet-icon d-flex align-items-center justify-content-center"
                          aria-hidden="true" th:switch="${p.species.name()}">
                         <span th:case="'CAT'">🐱</span>
                         <span th:case="'DOG'">🐶</span>

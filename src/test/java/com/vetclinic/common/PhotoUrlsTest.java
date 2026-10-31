@@ -26,17 +26,17 @@ class PhotoUrlsTest {
             "  "})
     @NullAndEmptySource
     void rejectsUnsafeUrls(String url) {
-        assertThat(PhotoUrls.safeOrNull(url)).isNull();
+        assertThat(PhotoUrls.isAllowed(url)).isFalse();
     }
 
     @Test
     void acceptsHttpsUrls() {
-        assertThat(PhotoUrls.safeOrNull("https://example.com/rex.png")).isEqualTo("https://example.com/rex.png");
-        assertThat(PhotoUrls.safeOrNull("HTTPS://example.com/rex.png")).isEqualTo("HTTPS://example.com/rex.png");
+        assertThat(PhotoUrls.isAllowed("https://example.com/rex.png")).isTrue();
+        assertThat(PhotoUrls.isAllowed("HTTPS://example.com/rex.png")).isTrue();
     }
 
     @Test
     void acceptsSiteRelativeImagePaths() {
-        assertThat(PhotoUrls.safeOrNull("/images/pets/rex.png")).isEqualTo("/images/pets/rex.png");
+        assertThat(PhotoUrls.isAllowed("/images/pets/rex.png")).isTrue();
     }
 }

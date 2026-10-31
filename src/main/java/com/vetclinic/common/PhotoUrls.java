@@ -12,22 +12,22 @@ public final class PhotoUrls {
     private PhotoUrls() {
     }
 
-    /** The URL if it is an https:// address or a site-relative path under /images/, otherwise null. */
-    public static String safeOrNull(String url) {
+    /** True if the URL is an https:// address with a host and no user-info, or a site-relative path under /images/. */
+    public static boolean isAllowed(String url) {
         if (url == null || url.isBlank() || url.chars().anyMatch(c -> c <= ' ' || c == '\\' || c == 127)) {
-            return null;
+            return false;
         }
         try {
             URI uri = new URI(url);
             if (uri.getScheme() == null) {
                 boolean local = url.startsWith(LOCAL_PREFIX) && uri.getHost() == null && !url.contains("..");
-                return local ? url : null;
+                return local;
             }
             boolean https = uri.getScheme().toLowerCase(Locale.ROOT).equals("https")
                     && uri.getHost() != null && uri.getUserInfo() == null;
-            return https ? url : null;
+            return https;
         } catch (URISyntaxException e) {
-            return null;
+            return false;
         }
     }
 }
