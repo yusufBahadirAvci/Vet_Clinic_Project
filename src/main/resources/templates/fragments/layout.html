@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<!-- Usage in a page: <head th:replace="~{fragments/layout :: head('Page title')}"></head> -->
+<head th:fragment="head(title)">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${title} + ' | VetClinic'">VetClinic</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+    <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+
+<body>
+
+<nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-dark bg-success">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/}">VetClinic</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#mainNavbar" aria-controls="mainNavbar"
+                aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="mainNavbar">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item"><a class="nav-link" th:href="@{/}">Home</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/adoptions}">Adoption</a></li>
+                <li class="nav-item" sec:authorize="hasRole('OWNER')">
+                    <a class="nav-link" th:href="@{/my/pets}">My pets</a>
+                </li>
+                <th:block sec:authorize="hasRole('VET')">
+                    <li class="nav-item"><a class="nav-link" th:href="@{/vet}">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" th:href="@{/vet/owners}">Owners</a></li>
+                    <li class="nav-item"><a class="nav-link" th:href="@{/vet/pets}">Pets</a></li>
+                    <li class="nav-item"><a class="nav-link" th:href="@{/vet/vaccines}">Vaccines</a></li>
+                    <li class="nav-item"><a class="nav-link" th:href="@{/vet/adoptions}">Listings</a></li>
+                </th:block>
+            </ul>
+            <ul class="navbar-nav mb-2 mb-lg-0 align-items-lg-center">
+                <li class="nav-item" sec:authorize="isAnonymous()">
+                    <a class="nav-link" th:href="@{/login}">Log in</a>
+                </li>
+                <li class="nav-item" sec:authorize="isAuthenticated()">
+                    <span class="navbar-text me-lg-3" sec:authentication="name">user</span>
+                </li>
+                <li class="nav-item" sec:authorize="isAuthenticated()">
+                    <form th:action="@{/logout}" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-outline-light btn-sm">Log out</button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div th:fragment="flash">
+    <div th:if="${successMessage}" class="alert alert-success" role="alert" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="alert alert-danger" role="alert" th:text="${errorMessage}"></div>
+    <div th:if="${param.logout}" class="alert alert-info" role="alert">You have been logged out.</div>
+</div>
+
+<!-- Clinic contact details, shared by the footer and the home page -->
+<address th:fragment="contact" class="mb-0">
+    <strong>VetClinic</strong><br>
+    Example Street 1, Istanbul<br>
+    Phone: <a href="tel:+902120000000">+90 212 000 00 00</a><br>
+    E-mail: <a href="mailto:info@vetclinic.example">info@vetclinic.example</a>
+</address>
+
+<footer th:fragment="footer" class="app-footer bg-light border-top mt-auto py-4">
+    <div class="container">
+        <div class="row gy-3">
+            <div class="col-md-6" th:insert="~{fragments/layout :: contact}"></div>
+            <div class="col-md-6 text-md-end">
+                <a th:href="@{/privacy}">Privacy notice</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>

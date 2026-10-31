@@ -61,7 +61,7 @@ Inside each package, as needed: `web` (controllers + forms/DTOs), `service`, `do
 ## URL and access map
 | Path | Access |
 |---|---|
-| `/`, `/adoptions`, `/adoptions/{id}`, `POST /adoptions/{id}/apply` | Everyone |
+| `/`, `/privacy`, `/adoptions`, `/adoptions/{id}`, `POST /adoptions/{id}/apply` | Everyone |
 | `/login`, `/login/verify`, `POST /login/resend` | Everyone |
 | `/css/**`, `/js/**`, `/images/**`, `/error` | Everyone |
 | `/my/**` | OWNER |

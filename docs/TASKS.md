@@ -143,7 +143,7 @@ Aşağıdakileri `CLAUDE.md` ve bu dosyadaki haliyle onaylayın; değişiklik va
 1. `templates/fragments/layout.html`: `head` (Bootstrap 5 CDN, `css/app.css`), `navbar`, `flash` (başarı/hata mesajları), `footer` (KVKK linki, iletişim).
 2. Navbar rol bazlı (`sec:authorize`): herkes → Ana sayfa, Sahiplendirme; anonim → Giriş; OWNER → Hayvanlarım; VET → Panel, Sahipler, Hayvanlar, Aşılar, İlanlar; girişliyken kullanıcı adı + Çıkış (POST formu, CSRF'li).
 3. `common.web.HomeController` + `index.html`: kısa tanıtım, "Sahiplendirme ilanlarını gör" ve "Hayvanımın aşı kartı" butonları, klinik iletişim bilgisi.
-4. `templates/kvkk.html`: kısa aydınlatma metni (`/kvkk`, herkese açık).
+4. `templates/privacy.html`: kısa aydınlatma metni (`/privacy`, herkese açık).
 
 **Güvenlik**
 5. `auth.SecurityConfig`: URL haritası `CLAUDE.md`'deki gibi; `formLogin` kapalı; anonim kullanıcı korumalı sayfaya gelince `/login`'e yönlendir; `logout` POST `/logout` → `/?logout`; CSRF açık.
@@ -376,7 +376,7 @@ Aşağıdakileri `CLAUDE.md` ve bu dosyadaki haliyle onaylayın; değişiklik va
 **Herkese açık taraf**
 8. `GET /adoptions` – ACTIVE ve RESERVED ilanlar kart olarak (RESERVED'de "Görüşme sürecinde" rozeti); filtre: tür, cinsiyet, yaş aralığı (yavru <1, genç 1–3, yetişkin 3–8, yaşlı 8+); boşsa güzel bir boş durum mesajı.
 9. `GET /adoptions/{id}` – fotoğraf, ad, tür, cins, yaş, cinsiyet, kısırlık, açıklama. DRAFT/CLOSED → 404. ADOPTED → "Bu dostumuz yuvasını buldu 🎉".
-10. Başvuru formu (sadece `acceptsApplications()` true ise): ad soyad, e-posta, telefon (en az biri, `ContactNormalizer`), mesaj, KVKK onayı (zorunlu, `/kvkk` linki). `POST /adoptions/{id}/apply` → PENDING kayıt → "Başvurunuz alındı" sayfası.
+10. Başvuru formu (sadece `acceptsApplications()` true ise): ad soyad, e-posta, telefon (en az biri, `ContactNormalizer`), mesaj, KVKK onayı (zorunlu, `/privacy` linki). `POST /adoptions/{id}/apply` → PENDING kayıt → "Başvurunuz alındı" sayfası.
 11. Aynı iletişim bilgisiyle aynı ilana ikinci PENDING başvuru engellenir.
 12. Ana sayfaya "Son ilanlar" bölümü (3 ACTIVE ilan).
 

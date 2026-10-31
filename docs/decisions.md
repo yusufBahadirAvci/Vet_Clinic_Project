@@ -71,3 +71,9 @@
 - **Date:** 2026-10-31
 - **Decision:** `V1001__demo_pets_vaccines_adoptions.sql` gives the bird (Kiwi) and the rabbit (Snowball) two Rabies doses, because Rabies is the only catalog vaccine for those species and every owned pet has 2–4 records. The older dose's `next_due_date` is the date the newer dose was given (booster on time). Only the **latest dose of each vaccine** counts for a pet's vaccination status (`docs/TASKS.md` C4 step 3); the same applies to the vet's upcoming/overdue list (Y4 step 4). The reminder query (`findAllByNextDueDateBetween` from today onward) is not affected.
 - **Rationale:** a vaccination card is a history; an older dose that was followed by a booster is completed, not overdue. Evaluating every record on its own would show the old Rabies dose as OVERDUE.
+
+## 13. Privacy notice route is /privacy
+
+- **Date:** 2026-10-31
+- **Decision:** Privacy notice route is `/privacy` instead of `/kvkk` (English-only rule). The template is `templates/privacy.html`.
+- **Rationale:** `CLAUDE.md` requires everything, including URLs, to be in English; `/kvkk` is a Turkish acronym.
