@@ -53,3 +53,9 @@
 - **Date:** 2026-10-30
 - **Decision:** all enum columns have CHECK constraints in `V1__init.sql`: `users.role`, `pets.species`, `pets.gender`, `vaccines.target_species` (`IS NULL OR IN (...)`, NULL = all species), `adoption_listings.status`, `adoption_applications.status` and `otp_codes.channel`. Each constraint lists exactly the values in decision 3.
 - **Rationale:** the database rejects invalid values even outside the application (manual SQL, seed scripts, future migrations), so a typo cannot store a value that `@Enumerated(EnumType.STRING)` fails to read back.
+
+## 10. Test database: one shared Testcontainers container as a Spring bean
+
+- **Date:** 2026-10-31
+- **Decision:** `AbstractIntegrationTest` (`@SpringBootTest`, profile `test`) imports `TestcontainersConfiguration`, which declares the `postgres:16` `PostgreSQLContainer` as a `@Bean` with `@ServiceConnection`. We do not use `@Testcontainers` + a static `@Container` field. The `test` profile runs Flyway with `classpath:db/migration` only, so no seed data is loaded.
+- **Rationale:** with `@Testcontainers`, the JUnit extension stops the container after each test class, while Spring caches and reuses the application context; the next test class would then connect to a stopped database. A container bean lives exactly as long as the context, so all integration tests share one container, and `TestVetclinicApplication` reuses the same configuration.
