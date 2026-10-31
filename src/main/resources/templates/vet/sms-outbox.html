@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('SMS outbox')}"></head>
+<body class="d-flex flex-column min-vh-100">
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main class="container py-4 flex-grow-1">
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <h1 class="h3">SMS outbox</h1>
+    <p class="text-muted">
+        Demo only: SMS messages are not delivered, they are stored here. Showing the last 50 messages.
+    </p>
+
+    <p th:if="${#lists.isEmpty(messages)}" class="alert alert-info">No SMS messages have been sent yet.</p>
+
+    <div th:unless="${#lists.isEmpty(messages)}" class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead>
+            <tr>
+                <th scope="col">Sent at</th>
+                <th scope="col">Phone</th>
+                <th scope="col">Message</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="m : ${messages}">
+                <td class="text-nowrap" th:text="${m.sentAt}">2026-01-01 12:00:00</td>
+                <td class="text-nowrap" th:text="${m.phone}">+905321234567</td>
+                <td th:text="${m.message}">Message</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

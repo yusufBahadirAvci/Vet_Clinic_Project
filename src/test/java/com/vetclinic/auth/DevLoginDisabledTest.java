@@ -1,5 +1,6 @@
 package com.vetclinic.auth;
 
+import com.vetclinic.common.web.HomeController;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -14,7 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /** Outside the dev profile /dev/login is not permitted by SecurityConfig. */
-@WebMvcTest
+@WebMvcTest(HomeController.class)
 @ActiveProfiles("test")
 @Import(SecurityConfig.class)
 class DevLoginDisabledTest {
