@@ -10,11 +10,11 @@ spring:
   mail:
     host: localhost
     port: 1025
-  # TEMPORARY – restore in task Y2 (flyway enabled, ddl-auto validate)
   flyway:
-    enabled: false
+    enabled: true
+    # Schema only. The dev (and later docker) profile adds classpath:db/seed.
+    locations: classpath:db/migration
   jpa:
-    # TEMPORARY – restore in task Y2 (flyway enabled, ddl-auto validate)
     hibernate:
-      ddl-auto: none
+      ddl-auto: validate
     open-in-view: false

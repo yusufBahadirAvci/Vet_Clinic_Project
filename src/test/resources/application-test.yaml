@@ -1,0 +1,5 @@
+spring:
+  # The datasource comes from the Testcontainers PostgreSQL bean (@ServiceConnection).
+  flyway:
+    # Schema only: tests never load the demo seed data.
+    locations: classpath:db/migration
