@@ -9,6 +9,7 @@ import static org.hamcrest.Matchers.not;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.Clock;
@@ -164,5 +165,33 @@ class OwnerPortalControllerIT extends AbstractIntegrationTest {
                 .andExpect(content().string(containsString("Alice Owner")))
                 .andExpect(content().string(containsString("alice@portal.test")))
                 .andExpect(content().string(containsString("If your details are wrong, please contact the clinic.")));
+    }
+
+    @Test
+    void ownerDeactivatedAfterLoginIsRedirectedToLogin() throws Exception {
+        AppUserPrincipal session = AppUserPrincipal.from(alice);
+        alice.setActive(false);
+        userRepository.save(alice);
+
+        mockMvc.perform(get("/my/pets").with(user(session)))
+                .andExpect(status().isFound())
+                .andExpect(redirectedUrl("/login"));
+    }
+
+    @Test
+    void ownerWhoseRoleChangedAfterLoginIsRedirectedToLogin() throws Exception {
+        AppUserPrincipal session = AppUserPrincipal.from(alice);
+        alice.setRole(com.vetclinic.user.domain.Role.VET);
+        userRepository.save(alice);
+
+        mockMvc.perform(get("/my/pets").with(user(session)))
+                .andExpect(status().isFound())
+                .andExpect(redirectedUrl("/login"));
+    }
+
+    @Test
+    void activeOwnerIsNotAffectedByTheRevalidation() throws Exception {
+        mockMvc.perform(get("/my/pets").with(user(AppUserPrincipal.from(alice))))
+                .andExpect(status().isOk());
     }
 }

@@ -12,6 +12,8 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.vetclinic.user.repository.UserRepository;
+
 import java.time.LocalDate;
 import java.util.List;
 
@@ -35,6 +37,8 @@ class PetControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+    @MockitoBean
+    private UserRepository userRepository;
 
     @MockitoBean
     private PetService petService;

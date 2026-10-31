@@ -1,6 +1,7 @@
 package com.vetclinic.pet.service;
 
 import com.vetclinic.common.AgeFormatter;
+import com.vetclinic.common.PhotoUrls;
 import com.vetclinic.common.exception.NotFoundException;
 import com.vetclinic.pet.domain.Pet;
 import com.vetclinic.pet.repository.PetRepository;
@@ -63,13 +64,13 @@ public class PetProfileFacade {
         return new PetProfileDto(
                 pet.getId(), pet.getName(), pet.getSpecies(), label(pet.getSpecies()), pet.getBreed(),
                 label(pet.getGender()), pet.getBirthDate(), ageFormatter.format(pet.getBirthDate()),
-                pet.getColor(), pet.getMicrochipNo(), pet.isNeutered(), pet.getPhotoUrl(),
+                pet.getColor(), pet.getMicrochipNo(), pet.isNeutered(), PhotoUrls.safeOrNull(pet.getPhotoUrl()),
                 nearestStatus(timeline), upcoming, timeline);
     }
 
     private PetSummaryDto toSummary(Pet pet) {
         return new PetSummaryDto(pet.getId(), pet.getName(), pet.getSpecies(), label(pet.getSpecies()),
-                pet.getBreed(), ageFormatter.format(pet.getBirthDate()), pet.getPhotoUrl(),
+                pet.getBreed(), ageFormatter.format(pet.getBirthDate()), PhotoUrls.safeOrNull(pet.getPhotoUrl()),
                 nearestStatus(timelineOf(pet)));
     }
 

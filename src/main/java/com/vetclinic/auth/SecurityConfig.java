@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
+import com.vetclinic.user.repository.UserRepository;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -11,6 +12,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
+import org.springframework.security.web.context.SecurityContextHolderFilter;
 
 @Configuration
 public class SecurityConfig {
@@ -24,10 +26,12 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, Environment environment) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, Environment environment,
+                                                   UserRepository userRepository) throws Exception {
         boolean devProfile = environment.acceptsProfiles(Profiles.of("dev"));
 
         http
+                .addFilterAfter(new SessionRevalidationFilter(userRepository, LOGIN_URL), SecurityContextHolderFilter.class)
                 .authorizeHttpRequests(auth -> {
                     auth.requestMatchers("/", "/privacy", "/adoptions", "/adoptions/*").permitAll();
                     auth.requestMatchers(HttpMethod.POST, "/adoptions/*/apply", "/login/resend").permitAll();
