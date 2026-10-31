@@ -59,3 +59,9 @@
 - **Date:** 2026-10-31
 - **Decision:** `AbstractIntegrationTest` (`@SpringBootTest`, profile `test`) imports `TestcontainersConfiguration`, which declares the `postgres:16` `PostgreSQLContainer` as a `@Bean` with `@ServiceConnection`. We do not use `@Testcontainers` + a static `@Container` field. The `test` profile runs Flyway with `classpath:db/migration` only, so no seed data is loaded.
 - **Rationale:** with `@Testcontainers`, the JUnit extension stops the container after each test class, while Spring caches and reuses the application context; the next test class would then connect to a stopped database. A container bean lives exactly as long as the context, so all integration tests share one container, and `TestVetclinicApplication` reuses the same configuration.
+
+## 11. Privacy notice route is /privacy
+
+- **Date:** 2026-10-31
+- **Decision:** Privacy notice route is `/privacy` instead of `/kvkk` (English-only rule). The template is `templates/privacy.html`.
+- **Rationale:** `CLAUDE.md` requires everything, including URLs, to be in English; `/kvkk` is a Turkish acronym.

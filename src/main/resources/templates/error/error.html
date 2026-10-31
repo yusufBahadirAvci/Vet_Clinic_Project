@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Error')}"></head>
+<body class="d-flex flex-column min-vh-100">
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main class="container py-5 flex-grow-1 text-center">
+    <div th:replace="~{fragments/layout :: flash}"></div>
+    <p class="display-1 fw-bold text-success" th:text="${status}">400</p>
+    <h1 class="h3">Something went wrong with your request</h1>
+    <p class="text-muted">The request could not be processed. Please check it and try again.</p>
+    <a class="btn btn-success" th:href="@{/}">Back to home</a>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>
