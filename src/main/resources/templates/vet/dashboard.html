@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Dashboard')}"></head>
+<body class="d-flex flex-column min-vh-100">
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main class="container py-4 flex-grow-1">
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+        <h1 class="h3 mb-0">Dashboard</h1>
+        <div class="d-flex flex-wrap gap-2">
+            <a class="btn btn-success" th:href="@{/vet/owners/new}">Add owner</a>
+            <a class="btn btn-outline-success" th:href="@{/vet/pets/new}">Add pet</a>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-lg-3">
+            <a class="card h-100 text-decoration-none" th:href="@{/vet/owners}">
+                <div class="card-body">
+                    <div class="text-muted small">Owners</div>
+                    <div class="display-6 fw-bold text-success" th:text="${stats.ownerCount}" id="owner-count">0</div>
+                </div>
+            </a>
+        </div>
+        <div class="col-6 col-lg-3">
+            <a class="card h-100 text-decoration-none" th:href="@{/vet/pets}">
+                <div class="card-body">
+                    <div class="text-muted small">Pets</div>
+                    <div class="display-6 fw-bold text-success" th:text="${stats.petCount}" id="pet-count">0</div>
+                </div>
+            </a>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Pets with a vaccination due in 7 days</div>
+                    <div class="display-6 fw-bold text-warning" th:text="${stats.petsDueSoonCount}" id="due-soon-count">0</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Pending adoption applications</div>
+                    <div class="display-6 fw-bold text-primary" th:text="${stats.pendingApplicationCount}" id="pending-count">0</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h2 class="h5">Recently added pets</h2>
+    <p th:if="${#lists.isEmpty(stats.recentPets)}" class="text-muted">No pets yet.</p>
+    <div class="list-group" th:unless="${#lists.isEmpty(stats.recentPets)}">
+        <a th:each="p : ${stats.recentPets}" th:href="@{/vet/pets/{id}(id=${p.id})}"
+           class="list-group-item list-group-item-action d-flex flex-wrap justify-content-between gap-2">
+            <span>
+                <strong th:text="${p.name}">Max</strong>
+                <span class="text-muted" th:text="${p.species}">Dog</span>
+            </span>
+            <span class="text-muted small">
+                <span th:text="${p.ownerName} ?: 'No owner'">Owner</span>
+                <span th:if="${p.addedOn}"> · added <span th:text="${#temporals.format(p.addedOn, 'dd.MM.yyyy')}">01.01.2026</span></span>
+            </span>
+        </a>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

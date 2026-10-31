@@ -77,10 +77,38 @@ class VaccinationRepositoryTest extends AbstractIntegrationTest {
                 .containsExactlyInAnyOrder(dueToday, dueInSevenDays);
     }
 
+    @Test
+    void countPetsDueBetweenCountsOnlyTheLatestDoseOfEachVaccineAndEachPetOnce() {
+        Vaccine combo = vaccineRepository.save(vaccine("Dog Combo", Species.DOG));
+        User owner = userRepository.save(owner("Other", "other@example.com"));
+        Pet rocky = petRepository.save(pet("Rocky", Species.DOG, owner));
+        Pet bella = petRepository.save(pet("Bella", Species.DOG, owner));
+        Pet kiwi = petRepository.save(pet("Kiwi", Species.BIRD, owner));
+
+        // Max: Rabies and Combo both due within 7 days -> Max is counted once
+        save(max, rabies, TODAY.minusDays(360), TODAY.plusDays(5));
+        save(max, combo, TODAY.minusDays(365), TODAY);
+        // Luna: an old dose was due in 3 days but a newer dose of the same vaccine exists -> not counted
+        save(luna, rabies, TODAY.minusDays(362), TODAY.plusDays(3));
+        save(luna, rabies, TODAY.minusDays(1), TODAY.plusDays(364));
+        // Rocky: due exactly on the last day of the range -> counted
+        save(rocky, rabies, TODAY.minusDays(358), TODAY.plusDays(7));
+        // Bella: overdue -> not counted; Kiwi: due after the range -> not counted
+        save(bella, rabies, TODAY.minusDays(370), TODAY.minusDays(5));
+        save(kiwi, rabies, TODAY.minusDays(300), TODAY.plusDays(8));
+        vaccinationRepository.flush();
+
+        assertThat(vaccinationRepository.countPetsDueBetween(TODAY, TODAY.plusDays(7))).isEqualTo(2);
+    }
+
     private Vaccination save(Pet pet, LocalDate administeredAt, LocalDate nextDueDate) {
+        return save(pet, rabies, administeredAt, nextDueDate);
+    }
+
+    private Vaccination save(Pet pet, Vaccine vaccine, LocalDate administeredAt, LocalDate nextDueDate) {
         Vaccination vaccination = new Vaccination();
         vaccination.setPet(pet);
-        vaccination.setVaccine(rabies);
+        vaccination.setVaccine(vaccine);
         vaccination.setVet(vet);
         vaccination.setAdministeredAt(administeredAt);
         vaccination.setNextDueDate(nextDueDate);

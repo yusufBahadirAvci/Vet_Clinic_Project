@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${pet.name})}"></head>
+<body class="d-flex flex-column min-vh-100">
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main class="container py-4 flex-grow-1">
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a th:href="@{/vet/pets}">Pets</a></li>
+            <li class="breadcrumb-item active" aria-current="page" th:text="${pet.name}">Pet</li>
+        </ol>
+    </nav>
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+        <h1 class="h3 mb-0" th:text="${pet.name}">Max</h1>
+        <div class="d-flex flex-wrap gap-2">
+            <a class="btn btn-outline-success" th:href="@{/vet/pets/{id}/edit(id=${pet.id})}">Edit</a>
+            <!-- Wired to the adoption listing form in Y5 -->
+            <button th:if="${pet.ownerless()}" type="button" class="btn btn-outline-primary" disabled
+                    title="Available soon">Create adoption listing</button>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-12 col-lg-8">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h2 class="h5 card-title">Details</h2>
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">Species</dt>
+                        <dd class="col-sm-8" th:text="${pet.species}">Dog</dd>
+                        <dt class="col-sm-4">Breed</dt>
+                        <dd class="col-sm-8" th:text="${pet.breed} ?: '–'">Beagle</dd>
+                        <dt class="col-sm-4">Gender</dt>
+                        <dd class="col-sm-8" th:text="${pet.gender}">Male</dd>
+                        <dt class="col-sm-4">Birth date</dt>
+                        <dd class="col-sm-8">
+                            <span th:text="${#temporals.format(pet.birthDate, 'dd.MM.yyyy')}">01.01.2022</span>
+                            (<span th:text="${pet.age}">3 years</span>)
+                        </dd>
+                        <dt class="col-sm-4">Color</dt>
+                        <dd class="col-sm-8" th:text="${pet.color} ?: '–'">Brown</dd>
+                        <dt class="col-sm-4">Microchip</dt>
+                        <dd class="col-sm-8" th:text="${pet.microchipNo} ?: '–'">792097000100001</dd>
+                        <dt class="col-sm-4">Neutered</dt>
+                        <dd class="col-sm-8" th:text="${pet.neutered} ? 'Yes' : 'No'">Yes</dd>
+                        <dt class="col-sm-4">Owner</dt>
+                        <dd class="col-sm-8 mb-0">
+                            <th:block th:if="${pet.ownerId}">
+                                <a th:href="@{/vet/owners/{id}(id=${pet.ownerId})}" th:text="${pet.ownerName}">Ayşe</a>
+                                <div class="small text-muted" th:if="${pet.ownerEmail}" th:text="${pet.ownerEmail}">mail</div>
+                                <div class="small text-muted" th:if="${pet.ownerPhone}" th:text="${pet.ownerPhone}">phone</div>
+                            </th:block>
+                            <span th:unless="${pet.ownerId}" class="badge bg-warning text-dark">No owner</span>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-4" th:if="${pet.photoUrl}">
+            <img th:src="${pet.photoUrl}" th:alt="|Photo of ${pet.name}|" class="img-fluid rounded border"
+                 referrerpolicy="no-referrer">
+        </div>
+    </div>
+
+    <section class="mt-4" id="vaccinations">
+        <h2 class="h5">Vaccinations</h2>
+        <!-- Filled in Y4 (vaccination timeline and "Add vaccination" form) -->
+        <p class="text-muted">No vaccination records yet.</p>
+    </section>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>
