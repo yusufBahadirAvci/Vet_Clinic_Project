@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${owner.fullName})}"></head>
+<body class="d-flex flex-column min-vh-100">
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main class="container py-4 flex-grow-1">
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a th:href="@{/vet/owners}">Owners</a></li>
+            <li class="breadcrumb-item active" aria-current="page" th:text="${owner.fullName}">Owner</li>
+        </ol>
+    </nav>
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+        <h1 class="h3 mb-0">
+            <span th:text="${owner.fullName}">Ayşe Demir</span>
+            <span th:if="${owner.active}" class="badge bg-success fs-6 align-middle">Active</span>
+            <span th:unless="${owner.active}" class="badge bg-secondary fs-6 align-middle">Inactive</span>
+        </h1>
+        <div class="d-flex flex-wrap gap-2">
+            <a class="btn btn-outline-success" th:href="@{/vet/owners/{id}/edit(id=${owner.id})}">Edit</a>
+            <form th:if="${owner.active}" th:action="@{/vet/owners/{id}/deactivate(id=${owner.id})}" method="post"
+                  onsubmit="return confirm('Deactivate this owner? They will no longer be able to log in.');">
+                <button type="submit" class="btn btn-outline-danger">Deactivate</button>
+            </form>
+            <form th:unless="${owner.active}" th:action="@{/vet/owners/{id}/reactivate(id=${owner.id})}" method="post">
+                <button type="submit" class="btn btn-outline-primary">Reactivate</button>
+            </form>
+        </div>
+    </div>
+
+    <div th:unless="${owner.active}" class="alert alert-secondary">
+        This owner is inactive and cannot log in.
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h2 class="h5 card-title">Contact details</h2>
+            <dl class="row mb-0">
+                <dt class="col-sm-4">E-mail</dt>
+                <dd class="col-sm-8" th:text="${owner.email} ?: '–'">ayse@example.com</dd>
+                <dt class="col-sm-4">Phone</dt>
+                <dd class="col-sm-8" th:text="${owner.phone} ?: '–'">+905321234567</dd>
+                <dt class="col-sm-4">KVKK consent</dt>
+                <dd class="col-sm-8 mb-0"
+                    th:text="${owner.kvkkConsentDate} ? ${#temporals.format(owner.kvkkConsentDate, 'dd.MM.yyyy')} : '–'">01.01.2026</dd>
+            </dl>
+        </div>
+    </div>
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+        <h2 class="h5 mb-0">Pets</h2>
+        <a class="btn btn-success btn-sm" th:href="@{/vet/pets/new(ownerId=${owner.id})}">Add pet</a>
+    </div>
+    <p th:if="${#lists.isEmpty(owner.pets)}" class="text-muted">This owner has no pets yet.</p>
+    <div class="list-group" th:unless="${#lists.isEmpty(owner.pets)}">
+        <a th:each="p : ${owner.pets}" th:href="@{/vet/pets/{id}(id=${p.id})}"
+           class="list-group-item list-group-item-action d-flex flex-wrap justify-content-between gap-2">
+            <span>
+                <strong th:text="${p.name}">Max</strong>
+                <span class="text-muted" th:text="${p.breed} ? |${p.species} · ${p.breed}| : ${p.species}">Dog</span>
+            </span>
+            <span class="text-muted small" th:text="${p.age}">3 years</span>
+        </a>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

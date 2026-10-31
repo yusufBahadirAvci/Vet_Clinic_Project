@@ -11,4 +11,6 @@ public interface AdoptionApplicationRepository extends JpaRepository<AdoptionApp
     List<AdoptionApplication> findAllByListingIdOrderByCreatedAt(Long listingId);
 
     List<AdoptionApplication> findAllByListingIdAndStatus(Long listingId, ApplicationStatus status);
+
+    long countByStatus(ApplicationStatus status);
 }

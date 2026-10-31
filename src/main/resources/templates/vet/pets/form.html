@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${petId} ? 'Edit pet' : 'Add pet')}"></head>
+<body class="d-flex flex-column min-vh-100">
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main class="container py-4 flex-grow-1">
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-9">
+            <h1 class="h3 mb-3" th:text="${petId} ? 'Edit pet' : 'Add pet'">Add pet</h1>
+
+            <form th:object="${petForm}" method="post" novalidate
+                  th:action="${petId} ? @{/vet/pets/{id}/edit(id=${petId})} : @{/vet/pets/new}">
+                <div class="row g-3">
+                    <div class="col-12 col-md-6">
+                        <label for="name" class="form-label">Name</label>
+                        <input type="text" class="form-control" th:field="*{name}" th:errorclass="is-invalid"
+                               maxlength="50" required>
+                        <div class="invalid-feedback" th:errors="*{name}"></div>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label for="ownerId" class="form-label">Owner</label>
+                        <select class="form-select" th:field="*{ownerId}" th:errorclass="is-invalid">
+                            <option value="">No owner</option>
+                            <option th:each="o : ${ownerOptions}" th:value="${o.id}" th:text="${o.label}">Ayşe Demir</option>
+                        </select>
+                        <div class="invalid-feedback" th:errors="*{ownerId}"></div>
+                    </div>
+
+                    <div class="col-6 col-md-4">
+                        <label for="species" class="form-label">Species</label>
+                        <select class="form-select" th:field="*{species}" th:errorclass="is-invalid" required>
+                            <option value="">Select…</option>
+                            <option th:each="s : ${speciesOptions}" th:value="${s.key}" th:text="${s.value}">Dog</option>
+                        </select>
+                        <div class="invalid-feedback" th:errors="*{species}"></div>
+                    </div>
+
+                    <div class="col-6 col-md-4">
+                        <label for="gender" class="form-label">Gender</label>
+                        <select class="form-select" th:field="*{gender}" th:errorclass="is-invalid" required>
+                            <option th:each="g : ${genderOptions}" th:value="${g.key}" th:text="${g.value}">Male</option>
+                        </select>
+                        <div class="invalid-feedback" th:errors="*{gender}"></div>
+                    </div>
+
+                    <div class="col-12 col-md-4">
+                        <label for="birthDate" class="form-label">Birth date</label>
+                        <input type="date" class="form-control" th:field="*{birthDate}" th:errorclass="is-invalid" required>
+                        <div class="invalid-feedback" th:errors="*{birthDate}"></div>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label for="breed" class="form-label">Breed <span class="text-muted">(optional)</span></label>
+                        <input type="text" class="form-control" th:field="*{breed}" th:errorclass="is-invalid" maxlength="60">
+                        <div class="invalid-feedback" th:errors="*{breed}"></div>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label for="color" class="form-label">Color <span class="text-muted">(optional)</span></label>
+                        <input type="text" class="form-control" th:field="*{color}" th:errorclass="is-invalid" maxlength="40">
+                        <div class="invalid-feedback" th:errors="*{color}"></div>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label for="microchipNo" class="form-label">Microchip number <span class="text-muted">(optional)</span></label>
+                        <input type="text" class="form-control" th:field="*{microchipNo}" th:errorclass="is-invalid"
+                               maxlength="20" inputmode="numeric" autocomplete="off">
+                        <div class="invalid-feedback" th:errors="*{microchipNo}"></div>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label for="photoUrl" class="form-label">Photo URL <span class="text-muted">(optional)</span></label>
+                        <input type="url" class="form-control" th:field="*{photoUrl}" th:errorclass="is-invalid"
+                               maxlength="500" placeholder="https://…">
+                        <div class="invalid-feedback" th:errors="*{photoUrl}"></div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" th:field="*{neutered}">
+                            <label class="form-check-label" for="neutered1">Neutered</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex flex-wrap gap-2 mt-4">
+                    <button type="submit" class="btn btn-success">Save</button>
+                    <a class="btn btn-outline-secondary"
+                       th:href="${petId} ? @{/vet/pets/{id}(id=${petId})} : @{/vet/pets}">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>
