@@ -74,6 +74,29 @@ class UserRepositoryTest extends AbstractIntegrationTest {
                 .isInstanceOf(DataIntegrityViolationException.class);
     }
 
+    @Test
+    void existsByContactAndIdNotIgnoresTheUserItself() {
+        User ayse = userRepository.saveAndFlush(user("Ayşe", "ayse@example.com", "+905321234567", Role.OWNER));
+        User other = userRepository.saveAndFlush(user("Other", "other@example.com", null, Role.OWNER));
+
+        assertThat(userRepository.existsByEmailAndIdNot("ayse@example.com", ayse.getId())).isFalse();
+        assertThat(userRepository.existsByEmailAndIdNot("ayse@example.com", other.getId())).isTrue();
+        assertThat(userRepository.existsByPhoneAndIdNot("+905321234567", ayse.getId())).isFalse();
+        assertThat(userRepository.existsByPhoneAndIdNot("+905321234567", other.getId())).isTrue();
+    }
+
+    @Test
+    void countByRoleAndActiveTrueSkipsInactiveOwnersAndVets() {
+        userRepository.save(user("Active", "a@example.com", null, Role.OWNER));
+        User inactive = user("Inactive", "i@example.com", null, Role.OWNER);
+        inactive.setActive(false);
+        userRepository.save(inactive);
+        userRepository.save(user("Vet", "v@example.com", null, Role.VET));
+        userRepository.flush();
+
+        assertThat(userRepository.countByRoleAndActiveTrue(Role.OWNER)).isEqualTo(1);
+    }
+
     private static User user(String fullName, String email, String phone, Role role) {
         User user = new User();
         user.setFullName(fullName);

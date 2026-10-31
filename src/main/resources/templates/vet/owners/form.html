@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${ownerId} ? 'Edit owner' : 'Add owner')}"></head>
+<body class="d-flex flex-column min-vh-100">
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main class="container py-4 flex-grow-1">
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-10 col-lg-7">
+            <h1 class="h3 mb-3" th:text="${ownerId} ? 'Edit owner' : 'Add owner'">Add owner</h1>
+
+            <form th:object="${ownerForm}" method="post" novalidate
+                  th:action="${ownerId} ? @{/vet/owners/{id}/edit(id=${ownerId})} : @{/vet/owners/new}">
+
+                <div class="mb-3">
+                    <label for="fullName" class="form-label">Full name</label>
+                    <input type="text" class="form-control" th:field="*{fullName}" th:errorclass="is-invalid"
+                           maxlength="100" required>
+                    <div class="invalid-feedback" th:errors="*{fullName}"></div>
+                </div>
+
+                <p class="form-text mb-2">Enter at least one of e-mail and phone. The owner logs in with a code sent there.</p>
+
+                <div class="mb-3">
+                    <label for="email" class="form-label">E-mail</label>
+                    <input type="email" class="form-control" th:field="*{email}" th:errorclass="is-invalid"
+                           maxlength="254" autocomplete="off">
+                    <div class="invalid-feedback" th:errors="*{email}"></div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="phone" class="form-label">Mobile phone</label>
+                    <input type="tel" class="form-control" th:field="*{phone}" th:errorclass="is-invalid"
+                           maxlength="30" placeholder="0532 123 45 67" autocomplete="off">
+                    <div class="invalid-feedback" th:errors="*{phone}"></div>
+                </div>
+
+                <div class="form-check mb-4">
+                    <input type="checkbox" class="form-check-input" th:field="*{kvkkConsent}" th:errorclass="is-invalid">
+                    <label class="form-check-label" for="kvkkConsent1">
+                        The owner has been informed under KVKK and has given consent
+                        (<a th:href="@{/privacy}" target="_blank">privacy notice</a>).
+                    </label>
+                    <div class="invalid-feedback" th:errors="*{kvkkConsent}"></div>
+                </div>
+
+                <div class="d-flex flex-wrap gap-2">
+                    <button type="submit" class="btn btn-success">Save</button>
+                    <a class="btn btn-outline-secondary"
+                       th:href="${ownerId} ? @{/vet/owners/{id}(id=${ownerId})} : @{/vet/owners}">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>
