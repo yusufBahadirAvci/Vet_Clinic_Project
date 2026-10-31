@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Privacy notice')}"></head>
+<body class="d-flex flex-column min-vh-100">
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main class="container py-4 flex-grow-1">
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <h1 class="mb-3">Privacy notice</h1>
+    <p class="text-muted">
+        Information about the processing of personal data under the Personal Data Protection Law
+        No. 6698 (KVKK).
+    </p>
+
+    <h2 class="h5 mt-4">Data controller</h2>
+    <p>VetClinic, Example Street 1, Istanbul (info@vetclinic.example).</p>
+
+    <h2 class="h5 mt-4">Personal data we process</h2>
+    <ul>
+        <li>Identity and contact data: full name, e-mail address and/or phone number.</li>
+        <li>Pet data linked to you: your pets' details and vaccination records.</li>
+        <li>Adoption applications: the details and message you submit with an application.</li>
+        <li>Login data: one-time login codes (stored only as a hash) and their usage times.</li>
+    </ul>
+
+    <h2 class="h5 mt-4">Why we process it</h2>
+    <ul>
+        <li>To provide veterinary services and keep your pets' vaccination cards.</li>
+        <li>To send you one-time login codes and vaccination reminders.</li>
+        <li>To evaluate adoption applications and to register the new owner when an adoption is approved.</li>
+    </ul>
+
+    <h2 class="h5 mt-4">Legal basis and consent</h2>
+    <p>
+        We process your data with your explicit consent, which we ask for when you are registered at the clinic
+        or when you submit an adoption application, and where it is necessary to perform our services.
+    </p>
+
+    <h2 class="h5 mt-4">Sharing and retention</h2>
+    <p>
+        We do not sell your data and share it with no third party other than the e-mail and SMS services needed
+        to deliver our messages. We keep your data for as long as you are a client of the clinic or as required by law.
+    </p>
+
+    <h2 class="h5 mt-4">Your rights</h2>
+    <p>
+        Under Article 11 of the KVKK you may ask whether your data is processed, request information about it,
+        ask for corrections or deletion, and withdraw your consent. To use these rights, contact us at the
+        e-mail address above.
+    </p>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

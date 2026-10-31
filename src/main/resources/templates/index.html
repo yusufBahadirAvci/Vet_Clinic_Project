@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Home')}"></head>
+<body class="d-flex flex-column min-vh-100">
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main class="container py-4 flex-grow-1">
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <section class="p-4 p-md-5 mb-4 bg-light rounded-3">
+        <h1 class="display-5 fw-bold">Welcome to VetClinic</h1>
+        <p class="lead">
+            Caring for your pets, from their first vaccination onwards. Pet owners can check their pets'
+            vaccination cards online, and anyone can give a pet in need a new home.
+        </p>
+        <div class="d-grid gap-2 d-sm-flex">
+            <a class="btn btn-success btn-lg" th:href="@{/adoptions}">View adoption listings</a>
+            <a class="btn btn-outline-success btn-lg" th:href="@{/my/pets}">My pet's vaccination card</a>
+        </div>
+    </section>
+
+    <section class="row gy-4">
+        <div class="col-md-6">
+            <h2 class="h4">How does it work?</h2>
+            <ul>
+                <li>Our veterinarians register you and your pets at the clinic.</li>
+                <li>You log in with a one-time code sent to your e-mail or phone, so no password is needed.</li>
+                <li>You see your pets and their vaccination history, and we remind you before a vaccine is due.</li>
+            </ul>
+        </div>
+        <div class="col-md-6">
+            <h2 class="h4">Visit us</h2>
+            <div th:replace="~{fragments/layout :: contact}"></div>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>
