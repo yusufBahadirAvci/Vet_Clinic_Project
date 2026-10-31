@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('My profile')}"></head>
+<body class="d-flex flex-column min-vh-100">
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main class="container py-4 flex-grow-1">
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <h1 class="h3 mb-4">My profile</h1>
+
+    <div class="card mb-3">
+        <div class="card-body">
+            <dl class="row mb-0">
+                <dt class="col-sm-3">Name</dt>
+                <dd class="col-sm-9" th:text="${profile.fullName}">Full Name</dd>
+                <dt class="col-sm-3">E-mail</dt>
+                <dd class="col-sm-9" th:text="${profile.email} ?: '-'">owner@example.com</dd>
+                <dt class="col-sm-3">Phone</dt>
+                <dd class="col-sm-9" th:text="${profile.phone} ?: '-'">+905321234567</dd>
+            </dl>
+        </div>
+    </div>
+
+    <p class="text-muted">If your details are wrong, please contact the clinic.</p>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

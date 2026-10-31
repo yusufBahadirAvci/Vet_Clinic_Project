@@ -6,6 +6,17 @@ address a {
     text-decoration: none;
 }
 
+.pet-photo {
+    height: 180px;
+    width: 100%;
+    object-fit: cover;
+}
+
+.pet-icon {
+    background: #e9f5ee;
+    font-size: 4rem;
+}
+
 @media print {
     .navbar,
     .app-footer,
@@ -16,5 +27,43 @@ address a {
 
     body {
         background: #fff !important;
+    }
+
+    .card {
+        border: 1px solid #999 !important;
+        box-shadow: none !important;
+        break-inside: avoid;
+    }
+
+    tr {
+        break-inside: avoid;
+    }
+
+    /* the table must fit the page: no horizontal scroll, wrapping text, smaller font */
+    .table-responsive {
+        overflow: visible !important;
+    }
+
+    .table {
+        width: 100% !important;
+        table-layout: auto;
+        font-size: 0.8rem;
+    }
+
+    .table th,
+    .table td {
+        white-space: normal !important;
+        overflow-wrap: anywhere;
+        padding: 0.25rem 0.4rem;
+    }
+
+    .table-striped > tbody > tr:nth-of-type(odd) > * {
+        --bs-table-accent-bg: transparent;
+    }
+
+    /* keep status colours when printing */
+    .badge {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
     }
 }

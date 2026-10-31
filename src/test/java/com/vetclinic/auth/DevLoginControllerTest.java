@@ -11,6 +11,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.vetclinic.user.repository.UserRepository;
+
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,6 +32,8 @@ class DevLoginControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+    @MockitoBean
+    private UserRepository userRepository;
 
     @MockitoBean
     private DevLoginService devLoginService;

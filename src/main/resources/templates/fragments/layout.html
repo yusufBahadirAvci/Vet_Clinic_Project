@@ -26,9 +26,10 @@
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item"><a class="nav-link" th:href="@{/}">Home</a></li>
                 <li class="nav-item"><a class="nav-link" th:href="@{/adoptions}">Adoption</a></li>
-                <li class="nav-item" sec:authorize="hasRole('OWNER')">
-                    <a class="nav-link" th:href="@{/my/pets}">My pets</a>
-                </li>
+                <th:block sec:authorize="hasRole('OWNER')">
+                    <li class="nav-item"><a class="nav-link" th:href="@{/my/pets}">My pets</a></li>
+                    <li class="nav-item"><a class="nav-link" th:href="@{/my/profile}">My profile</a></li>
+                </th:block>
                 <th:block sec:authorize="hasRole('VET')">
                     <li class="nav-item"><a class="nav-link" th:href="@{/vet}">Dashboard</a></li>
                     <li class="nav-item"><a class="nav-link" th:href="@{/vet/owners}">Owners</a></li>

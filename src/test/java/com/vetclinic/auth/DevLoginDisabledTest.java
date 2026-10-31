@@ -6,7 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+
+import com.vetclinic.user.repository.UserRepository;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -22,6 +25,8 @@ class DevLoginDisabledTest {
 
     @Autowired
     private MockMvc mockMvc;
+    @MockitoBean
+    private UserRepository userRepository;
 
     @Test
     void devLoginIsProtectedOutsideDevProfile() throws Exception {

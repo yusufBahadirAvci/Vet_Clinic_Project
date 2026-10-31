@@ -14,6 +14,8 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.vetclinic.user.repository.UserRepository;
+
 import java.util.List;
 
 import static org.hamcrest.Matchers.containsString;
@@ -40,6 +42,8 @@ class OwnerControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+    @MockitoBean
+    private UserRepository userRepository;
 
     @MockitoBean
     private OwnerService ownerService;
