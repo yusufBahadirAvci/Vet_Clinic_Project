@@ -60,7 +60,19 @@
 - **Decision:** `AbstractIntegrationTest` (`@SpringBootTest`, profile `test`) imports `TestcontainersConfiguration`, which declares the `postgres:16` `PostgreSQLContainer` as a `@Bean` with `@ServiceConnection`. We do not use `@Testcontainers` + a static `@Container` field. The `test` profile runs Flyway with `classpath:db/migration` only, so no seed data is loaded.
 - **Rationale:** with `@Testcontainers`, the JUnit extension stops the container after each test class, while Spring caches and reuses the application context; the next test class would then connect to a stopped database. A container bean lives exactly as long as the context, so all integration tests share one container, and `TestVetclinicApplication` reuses the same configuration.
 
-## 11. Privacy notice route is /privacy
+## 11. One Channel enum in notification.domain
+
+- **Date:** 2026-10-31
+- **Decision:** the delivery channel enum is `com.vetclinic.notification.domain.Channel` (`EMAIL`, `SMS`). `auth.domain.OtpCode.channel` uses it, and the notification code in C3 (`NotificationSender`, `NotificationSenderFactory`, `NotificationService`) reuses it instead of declaring its own.
+- **Rationale:** `otp_codes.channel` and the notification strategies describe the same concept; one enum keeps the values in one place (matching the CHECK constraint in `V1__init.sql`) and avoids converting between two identical enums. It lives in `notification` because that package owns delivery; `auth` depends on `notification` anyway.
+
+## 12. Demo seed: repeated doses and the "latest dose per vaccine" rule
+
+- **Date:** 2026-10-31
+- **Decision:** `V1001__demo_pets_vaccines_adoptions.sql` gives the bird (Kiwi) and the rabbit (Snowball) two Rabies doses, because Rabies is the only catalog vaccine for those species and every owned pet has 2–4 records. The older dose's `next_due_date` is the date the newer dose was given (booster on time). Only the **latest dose of each vaccine** counts for a pet's vaccination status (`docs/TASKS.md` C4 step 3); the same applies to the vet's upcoming/overdue list (Y4 step 4). The reminder query (`findAllByNextDueDateBetween` from today onward) is not affected.
+- **Rationale:** a vaccination card is a history; an older dose that was followed by a booster is completed, not overdue. Evaluating every record on its own would show the old Rabies dose as OVERDUE.
+
+## 13. Privacy notice route is /privacy
 
 - **Date:** 2026-10-31
 - **Decision:** Privacy notice route is `/privacy` instead of `/kvkk` (English-only rule). The template is `templates/privacy.html`.
