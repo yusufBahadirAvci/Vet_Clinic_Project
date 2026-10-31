@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('My pets')}"></head>
+<body class="d-flex flex-column min-vh-100">
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main class="container py-4 flex-grow-1">
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <h1 class="h3 mb-4">My pets</h1>
+
+    <p th:if="${#lists.isEmpty(pets)}" class="alert alert-info">
+        You have no registered pets. Please contact the clinic.
+    </p>
+
+    <div class="row g-4">
+        <div class="col-12 col-sm-6 col-lg-4" th:each="p : ${pets}">
+            <a th:href="@{/my/pets/{id}(id=${p.id})}" class="text-decoration-none text-reset">
+                <div class="card h-100 shadow-sm">
+                    <img th:if="${p.photoUrl}" th:src="${p.photoUrl}" th:alt="${p.name}"
+                         class="card-img-top pet-photo">
+                    <div th:unless="${p.photoUrl}" class="pet-photo pet-icon d-flex align-items-center justify-content-center"
+                         aria-hidden="true" th:switch="${p.species.name()}">
+                        <span th:case="'CAT'">🐱</span>
+                        <span th:case="'DOG'">🐶</span>
+                        <span th:case="'BIRD'">🐦</span>
+                        <span th:case="'RABBIT'">🐰</span>
+                        <span th:case="*">🐾</span>
+                    </div>
+                    <div class="card-body">
+                        <h2 class="h5 card-title" th:text="${p.name}">Pet name</h2>
+                        <p class="card-text text-muted mb-2">
+                            <span th:text="${p.speciesLabel}">Dog</span><span
+                                th:if="${p.breed}" th:text="' / ' + ${p.breed}"></span>
+                            · <span th:text="${p.age}">3 years</span>
+                        </p>
+                        <th:block th:switch="${p.status.name()}">
+                            <span th:case="'OVERDUE'" class="badge text-bg-danger">Overdue</span>
+                            <span th:case="'DUE_SOON'" class="badge text-bg-warning">Due soon</span>
+                            <span th:case="'OK'" class="badge text-bg-success">Up to date</span>
+                            <span th:case="*" class="badge text-bg-secondary">No doses scheduled</span>
+                        </th:block>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

@@ -11,14 +11,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 import static com.vetclinic.support.TestData.owner;
 import static com.vetclinic.support.TestData.vet;
@@ -34,20 +31,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 /** Full login flow through the real filter chain and a real database. Users have phones, so codes go to sms_outbox. */
 @AutoConfigureMockMvc
-@Import(LoginFlowIT.PetsPageStub.class)
 class LoginFlowIT extends AbstractIntegrationTest {
 
     private static final String KNOWN_CODE = "424242";
     private static final String SENT_MESSAGE = "If your details are registered, a verification code has been sent.";
-
-    /** The real /my/pets page arrives with C4; until then a stub proves the OWNER session reaches it. */
-    @RestController
-    static class PetsPageStub {
-        @GetMapping("/my/pets")
-        String pets() {
-            return "my pets";
-        }
-    }
 
     @Autowired
     private MockMvc mockMvc;
@@ -96,7 +83,7 @@ class LoginFlowIT extends AbstractIntegrationTest {
         MockHttpSession loggedIn = (MockHttpSession) verified.getRequest().getSession(false);
         mockMvc.perform(get("/my/pets").session(loggedIn))
                 .andExpect(status().isOk())
-                .andExpect(content().string("my pets"));
+                .andExpect(content().string(containsString("You have no registered pets.")));
     }
 
     @Test

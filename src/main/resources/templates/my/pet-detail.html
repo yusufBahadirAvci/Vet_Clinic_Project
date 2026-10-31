@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${pet.name})}"></head>
+<body class="d-flex flex-column min-vh-100">
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main class="container py-4 flex-grow-1">
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <div class="d-flex justify-content-between align-items-center mb-3 no-print">
+        <a th:href="@{/my/pets}" class="btn btn-link px-0">&larr; My pets</a>
+        <button type="button" class="btn btn-outline-secondary" onclick="window.print()">Print</button>
+    </div>
+
+    <!-- Identity card -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h1 class="h3 card-title" th:text="${pet.name}">Pet name</h1>
+            <dl class="row mb-0">
+                <dt class="col-sm-3">Species</dt>
+                <dd class="col-sm-9" th:text="${pet.speciesLabel}">Dog</dd>
+                <dt class="col-sm-3">Breed</dt>
+                <dd class="col-sm-9" th:text="${pet.breed} ?: '-'">Labrador</dd>
+                <dt class="col-sm-3">Gender</dt>
+                <dd class="col-sm-9" th:text="${pet.genderLabel}">Male</dd>
+                <dt class="col-sm-3">Birth date</dt>
+                <dd class="col-sm-9"><span th:text="${#temporals.format(pet.birthDate, 'dd MMM yyyy', T(java.util.Locale).ENGLISH)}">01 May 2022</span>
+                    (<span th:text="${pet.age}">3 years</span>)</dd>
+                <dt class="col-sm-3">Colour</dt>
+                <dd class="col-sm-9" th:text="${pet.color} ?: '-'">Black</dd>
+                <dt class="col-sm-3">Microchip</dt>
+                <dd class="col-sm-9" th:text="${pet.microchipNo} ?: '-'">123456789012345</dd>
+                <dt class="col-sm-3">Neutered</dt>
+                <dd class="col-sm-9" th:text="${pet.neutered} ? 'Yes' : 'No'">Yes</dd>
+            </dl>
+        </div>
+    </div>
+
+    <!-- Upcoming and overdue doses -->
+    <div class="card mb-4">
+        <div class="card-header fw-semibold">Upcoming and overdue doses</div>
+        <div class="card-body">
+            <p th:if="${#lists.isEmpty(pet.upcomingDoses)}" class="mb-0 text-success">
+                No doses are due in the next 30 days.
+            </p>
+            <ul class="list-group list-group-flush" th:unless="${#lists.isEmpty(pet.upcomingDoses)}">
+                <li class="list-group-item d-flex justify-content-between align-items-center px-0"
+                    th:each="d : ${pet.upcomingDoses}">
+                    <span>
+                        <strong th:text="${d.vaccineName}">Rabies</strong>
+                        &ndash; due <span th:text="${#temporals.format(d.nextDueDate, 'dd MMM yyyy', T(java.util.Locale).ENGLISH)}">01 Jan 2026</span>
+                    </span>
+                    <span th:if="${d.status.name() == 'OVERDUE'}" class="badge text-bg-danger">Overdue</span>
+                    <span th:if="${d.status.name() == 'DUE_SOON'}" class="badge text-bg-warning">Due soon</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Vaccination timeline -->
+    <h2 class="h4">Vaccination card</h2>
+    <p th:if="${#lists.isEmpty(pet.timeline)}" class="text-muted">No vaccinations have been recorded yet.</p>
+    <div class="table-responsive" th:unless="${#lists.isEmpty(pet.timeline)}">
+        <table class="table table-striped align-middle">
+            <thead>
+            <tr>
+                <th scope="col">Vaccine</th>
+                <th scope="col">Date given</th>
+                <th scope="col">Next due date</th>
+                <th scope="col">Veterinarian</th>
+                <th scope="col">Lot number</th>
+                <th scope="col">Status</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="v : ${pet.timeline}">
+                <td th:text="${v.vaccineName}">Rabies</td>
+                <td class="text-nowrap" th:text="${#temporals.format(v.administeredAt, 'dd MMM yyyy', T(java.util.Locale).ENGLISH)}">01 Jan 2025</td>
+                <td class="text-nowrap" th:text="${v.nextDueDate != null} ? ${#temporals.format(v.nextDueDate, 'dd MMM yyyy', T(java.util.Locale).ENGLISH)} : '-'">01 Jan 2026</td>
+                <td th:text="${v.vetName}">Dr. Vet</td>
+                <td th:text="${v.lotNumber} ?: '-'">LOT-1</td>
+                <td>
+                    <th:block th:switch="${v.status.name()}">
+                        <span th:case="'OVERDUE'" class="badge text-bg-danger">Overdue</span>
+                        <span th:case="'DUE_SOON'" class="badge text-bg-warning">Due soon</span>
+                        <span th:case="'OK'" class="badge text-bg-success">Up to date</span>
+                        <span th:case="*" class="badge text-bg-secondary">Completed</span>
+                    </th:block>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>
